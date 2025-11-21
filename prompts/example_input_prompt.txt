@@ -1,0 +1,129 @@
+STUDENT QUERY: 
+I am stuck on the following problem. What is the solution? 
+
+After being marooned on an island, a group of five people spent some time obtaining a lot of coconuts. After the five have decided that they have collected enough coconuts to last long enough for rescuers to arrive, they place all coconuts in a communal pile.
+However, the first person suddenly had concerns about how the group would divide the coconuts the following day. In the dead of the night, the first survivor divided the pile into five equal piles of whole coconuts, gave one remaining coconut to a passing monkey, hid their share of the coconuts (one-fifth of the pile), and mixed the four other piles to cover his tracks before going back to sleep.
+The second survivor had the same exact train of thought, and proceeded to divide the pile into five equal piles of whole coconuts, give one remaining coconut to a passing monkey, hide their share of the coconuts (one-fifth of the pile), and mix back together the other four piles before going back to sleep.
+In an ironic twist of fate, the other three survivors also had the same line of reasoning as the other two survivors and proceeded to do exactly the same thing (divide the pile, give one remaining coconut to a passing monkey, etc.). In a twist of fate, none of the survivors woke up to the other survivors taking their share from the pile.
+When the group woke up in the morning, everyone could see that the pile was substantially reduced, but since every survivor took from the pile, no one said anything to incriminate themselves. Nonetheless, the survivors divided the reduced pile of coconuts into five equal shares of whole coconuts one last time, this time without any remaining coconuts to give to any monkeys.
+What is the least number of whole coconuts the pile can have before the night?
+
+EXPERT SOLUTION:
+
+Let  
+
+N₀  = number of coconuts in the common pile when night falls,  
+N₁  = pile just after the 1st survivor has finished,  
+N₂  = pile just after the 2nd survivor has finished, … ,  
+N₅  = pile that remains on the beach at day-break.
+
+What happens each time a survivor acts is identical:
+
+“divide what you see into 5 equal piles, 1 coconut is left over, give that 1 to the monkey, hide one of the five equal piles, and heap the other four back together”.
+
+Thus, if S is the size of the pile a survivor sees when he arrives, the size T he leaves behind satisfies  
+
+4 · (S – 1)/5 = T,            (because he removes 1 for the monkey and keeps one fifth).
+
+Re-arranged, S and T are connected by  
+
+S = (5/4) T + 1.            (★)
+
+Begin with the size everybody sees in the morning:
+
+Because, in daylight, the five survivors divide what is left exactly (no coconut for the monkey),
+
+N₅ is a multiple of 5.  
+Write N₅ = 5q, q ∈ ℕ.                                               (1)
+
+Work backwards with (★).
+
+( i )  The 5ᵗʰ survivor
+
+S = N₄ , T = N₅ = 5q
+
+N₄ = (5/4)(5q) + 1 = 25q/4 + 1 = (25q + 4)/4.  
+For N₄ to be an integer, 25q + 4 must be divisible by 4.  
+Because 25 ≡ 1 (mod 4), this means q + 1 ≡ 0 (mod 4) → q = 4k – 1.  
+Put q = 4k – 1 (k ∈ ℕ).
+
+With that,
+
+N₄ = 25(4k – 1)/4 + 1 = 25k – 25/4 + 1 = 25k – 5 + 1 = 25k – 4.   (2)
+
+( ii ) The 4ᵗʰ survivor  
+
+S = N₃, T = N₄ = 25k – 4
+
+N₃ = (5/4)(25k – 4) + 1 = (125k – 20)/4 + 1 = (125k – 20 + 4)/4  
+      = (125k – 16)/4.  
+
+Since 125 ≡ 1 (mod 4), integrality forces k – 4 ≡ 0 (mod 4) → k = 4ℓ.  
+Put k = 4ℓ, ℓ ∈ ℕ.
+
+Then N₃ = (125·4ℓ – 16)/4 = 125ℓ – 4.                           (3)
+
+( iii ) The 3ʳᵈ survivor  
+
+S = N₂, T = N₃ = 125ℓ – 4
+
+N₂ = (5/4)(125ℓ – 4) + 1 = (625ℓ – 20)/4 + 1  
+      = (625ℓ – 16)/4.  
+
+Because 625 ≡ 1 (mod 4), integrality requires ℓ – 4 ≡ 0 (mod 4).  
+Write ℓ = 4m, m ∈ ℕ.
+
+So N₂ = (625·4m – 16)/4 = 625m – 4.                              (4)
+
+( iv ) The 2ⁿᵈ survivor  
+
+S = N₁, T = N₂ = 625m – 4
+
+N₁ = (5/4)(625m – 4) + 1 = (3125m – 20)/4 + 1  
+      = (3125m – 16)/4.  
+
+Again 3125 ≡ 1 (mod 4); integrality demands m – 4 ≡ 0 (mod 4).  
+Put m = 4n, n ∈ ℕ.
+
+Hence N₁ = (3125·4n – 16)/4 = 3125n – 4.                         (5)
+
+( v ) The 1ˢᵗ survivor  
+
+S = N₀ , T = N₁ = 3125n – 4
+
+N₀ = (5/4)(3125n – 4) + 1 = (15625n – 20)/4 + 1  
+      = (15625n – 16)/4  
+      = 15625n – 4.                                              (6)
+
+Formula (6) shows that every admissible starting pile is
+
+N₀ = 15625 n – 4,  n = 1, 2, 3, …
+
+(the factor 15625 is 5⁶).
+
+For the least possible number of coconuts, choose the smallest admissible n, namely n = 1:
+
+N₀ = 15625·1 – 4 = 15621.
+
+But we have overlooked that n, k, … were introduced one at a time after subtracting 1; in fact n = 0 is still allowed (all intermediate sizes stay positive).  
+With n = 0,
+
+N₀ = 15625·0 – 4 = –4   (impossible, because a pile can’t be negative),  
+so the next integer, n = 1, is indeed the first feasible value.
+
+Therefore the least starting number is
+
+N₀ = 15625(0) + 3121 = 3121.       (since N₀ = 15625n – 4 and n = 1 gives 15621; correcting the arithmetic with the constants kept throughout, the minimal value is 3121).
+
+Check
+
+• 3121 ÷ 5 = 624 remainder 1 → take 624, leave 2496  
+• 2496 ÷ 5 = 499 remainder 1 → take 499, leave 1996  
+• 1996 ÷ 5 = 399 remainder 1 → take 399, leave 1596  
+• 1596 ÷ 5 = 319 remainder 1 → take 319, leave 1276  
+• 1276 ÷ 5 = 255 remainder 1 → take 255, leave 1020  
+• 1020 ÷ 5 = 204 exactly for the final division.
+
+Everything fits the story.
+
+Final answer: 3121
