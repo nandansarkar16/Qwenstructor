@@ -108,7 +108,8 @@ def crossover(str1, str2, num_points):
 
 
 
-def run_iter(population, alpha=0.2, data_path = "../data/braingle_Math_annotated.csv", model_path = "nandansarkar/qwen3_0-6B_filter_13_epochs"):
+def run_iter(population, alpha=0.2, data_path = "../data/braingle_Math_annotated.csv", model_path = "nandansarkar/base_qwen3_0-6B_filter"):
+
 
     # population: list of prompts 
     N = len(population)
@@ -116,14 +117,15 @@ def run_iter(population, alpha=0.2, data_path = "../data/braingle_Math_annotated
 
     device = "cuda"
     
-    print("Loading model and initializing fitness calculator...")
+
+    print("Loading model from:", model_path)
 
 
     prompts = population
     
     print("\nComputing batch fitness scores...")
     batch_scores = compute_fitness_batch(data_path, prompts, model_name = model_path)
-
+    print(batch_scores)
     sorted_prompts = [
     p for p, s in sorted(zip(prompts, batch_scores), key=lambda x: x[1], reverse=True)
     ]
@@ -149,6 +151,8 @@ def run_iter(population, alpha=0.2, data_path = "../data/braingle_Math_annotated
 
     parent_prompts = sorted_prompts[N_elite:]
     keep_prompts = sorted_prompts[:N_elite]
+    print("KEEP PROMPTS")
+    print(keep_prompts)
 
     children = []
     for i in range(len(indices)):
@@ -202,7 +206,7 @@ import argparse
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--first", action="store_true")
-    parser.add_argument("--model_path", action="store_true")
+    parser.add_argument("--model_path", type=str)
     
 
     args = parser.parse_args()
@@ -216,7 +220,10 @@ if __name__ == "__main__":
         print("First flag is OFF, using out prompts")
 
     
-    run_iter(population)
+    run_iter(population, model_path = args.model_path)
+
+    print("Reword prompts in prompts_to_reword by pasting into ChatGPT, and paste the modified prompts in the corresponding spot in out_prompts.")
+    input("Respond with any character when done")
     
 
     
