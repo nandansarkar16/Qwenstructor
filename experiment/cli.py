@@ -155,8 +155,8 @@ DIOPHANTINE_PRACTICE_QUESTIONS = [
         "expert_solution": "We want positive integers x and y such that x^2 - y^2 = 15. Factor the left-hand side as a difference of squares: x^2 - y^2 = (x - y)(x + y). So we need positive integers a = x - y and b = x + y such that ab = 15. Because x and y are integers, x - y and x + y must have the same parity (both odd or both even). Since 15 is odd, the only way to write 15 as a product of two integers with the same parity is to use odd factors. The positive factor pairs of 15 are (1, 15) and (3, 5), and in each case both factors are odd. Set (x - y, x + y) = (1, 15). Then adding the equations gives 2x = 16, so x = 8, and subtracting gives 2y = 14, so y = 7. Next set (x - y, x + y) = (3, 5). Then 2x = 8, so x = 4, and 2y = 2, so y = 1. Reversing these pairs (i.e., (x - y, x + y) = (15, 1) or (5, 3)) would make x < y or give negative values, which do not work for positive integers. Therefore, the positive integer solutions are (x, y) = (8, 7) and (4, 1)."
     },
     {
-        "question": "Find all positive integer solutions (x, y) to 1/x + 1/y = 1/4.",
-        "expert_solution": "We want positive integers x and y such that 1/x + 1/y = 1/4. Combine the fractions on the left: (x + y)/(xy) = 1/4. Cross-multiplying gives 4(x + y) = xy, or xy - 4x - 4y = 0. Add 16 to both sides to factor: xy - 4x - 4y + 16 = 16, so (x - 4)(y - 4) = 16. Now let a = x - 4 and b = y - 4. Then a and b are integers satisfying ab = 16. To keep x and y positive, we only need to consider positive divisors of 16, because if a or b were nonpositive, at least one of x or y would be less than or equal to 4, which would make 1/x + 1/y at least 1/4 or larger in a way that does not satisfy the exact equation. The positive factor pairs of 16 are (1, 16), (2, 8), (4, 4), (8, 2), and (16, 1). For each pair (a, b), we set x = a + 4 and y = b + 4, giving (x, y) = (5, 20), (6, 12), (8, 8), (12, 6), and (20, 5). Each of these pairs satisfies 1/x + 1/y = 1/4. Therefore, all positive integer solutions are (5, 20), (6, 12), (8, 8), (12, 6), and (20, 5)."
+        "question": "Find all positive integer solutions (x, y) to xy + x + y = 35.",
+        "expert_solution": "We want positive integers x and y satisfying xy + x + y = 35. Add 1 to both sides to factor the left-hand side: xy + x + y + 1 = 35 + 1 = 36. The left-hand side factors as (x + 1)(y + 1), so we have (x + 1)(y + 1) = 36. Let a = x + 1 and b = y + 1. Then a and b are positive integers with ab = 36. The positive factor pairs of 36 are (1, 36), (2, 18), (3, 12), (4, 9), (6, 6), (9, 4), (12, 3), (18, 2), and (36, 1). Since x and y must be positive, we need a = x + 1 ≥ 2 and b = y + 1 ≥ 2, so we exclude the pairs involving 1 or 36 directly, that is, we discard (1, 36) and (36, 1). For each remaining pair (a, b), we set x = a - 1 and y = b - 1. This gives (x, y) = (1, 17), (2, 11), (3, 8), (5, 5), (8, 3), (11, 2), and (17, 1). Therefore all positive integer solutions are (1, 17), (2, 11), (3, 8), (5, 5), (8, 3), (11, 2), and (17, 1)."
     }
 ]
 
@@ -183,7 +183,7 @@ class TeacherModel:
     
     def _load_custom_model(self):
         """Load the custom model using LLaMA-Factory."""
-        model_path = "nandansarkar/qwen3_0-6B_filter_5_epochs_adversarial"
+        model_path = "nandansarkar/qwen3_0-6B_adversarial_6"
         # print(f"Loading custom model from {model_path}...")
         
         args = {
