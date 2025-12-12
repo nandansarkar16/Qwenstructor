@@ -52,6 +52,10 @@ STARTING_PROMPTS = [
     "Solve the whole problem without offering any form of incremental assistance. I only want the complete solution with clear steps. Present the final answer plainly."
 ]
 
+EVAL_STARTING_PROMPTS = [
+    "TODO SET OF 30 WHICH ARE SIMILAR", 
+]
+
 
 # If you haven't downloaded nltk punkt:
 # nltk.download('punkt')
@@ -130,6 +134,28 @@ def run_iter(population, alpha=0.2, data_path = "../data/braingle_Math_annotated
     p for p, s in sorted(zip(prompts, batch_scores), key=lambda x: x[1], reverse=True)
     ]
     sorted_scores = sorted(batch_scores, reverse=True)
+    iter_number = model_path[-1]
+    # I want to write to an existing df with columns "prompt" "score" "iteration"
+
+
+    csv_path = "test_results.csv"
+        
+
+    csv_path = "train_results.csv"
+
+    # Create a dataframe with new rows
+    new_rows = pd.DataFrame({
+        "prompt": sorted_prompts,
+        "score": sorted_scores,
+        "iteration": [iter_number] * len(sorted_prompts)
+    })
+
+    # If file exists, append without writing header
+    if os.path.exists(csv_path):
+        new_rows.to_csv(csv_path, mode="a", header=False, index=False)
+    else:
+        # If file doesn't exist yet, write with header
+        new_rows.to_csv(csv_path, mode="w", header=True, index=False)
 
     sample_scores = sorted_scores[N_elite:]
 
@@ -151,6 +177,9 @@ def run_iter(population, alpha=0.2, data_path = "../data/braingle_Math_annotated
 
     parent_prompts = sorted_prompts[N_elite:]
     keep_prompts = sorted_prompts[:N_elite]
+    
+
+
     print("KEEP PROMPTS")
     print(keep_prompts)
 
@@ -195,7 +224,6 @@ def run_iter(population, alpha=0.2, data_path = "../data/braingle_Math_annotated
 
     
 
-import os
 
 
                 
@@ -207,6 +235,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--first", action="store_true")
     parser.add_argument("--model_path", type=str)
+    parser.add_argument("--data_path", type=str, default="../data/braingle_Math_annotated.csv")
+    parser.add_argument("--eval_first", action="store_true")
     
 
     args = parser.parse_args()
@@ -214,11 +244,16 @@ if __name__ == "__main__":
     if args.first:
         population = STARTING_PROMPTS
         print("First flag is ON, using starting prompts")
+    elif args.eval_first:
+        population = EVAL_STARTING_PROMPTS
+        print("Eval first flag is ON, using starting prompts for EVAL")
     else:
         population = read_prompts_from_folder("out_prompts")
         print("THIS MANY PROMPTS READ:", len(population))
         print("First flag is OFF, using out prompts")
 
+    print("Using model path:", args.model_path)
+    print("Using data path:", args.data_path)
     
     run_iter(population, model_path = args.model_path)
 
@@ -226,7 +261,8 @@ if __name__ == "__main__":
     input("Respond with any character when done")
     
 
-    
+
+
 
     
 

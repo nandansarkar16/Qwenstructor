@@ -168,28 +168,53 @@ def read_prompts_from_folder(folder_path):
 
     return prompts
 
-if __name__ == "__main__":
-    data_path = "../data/braingle_Math_annotated.csv"
-    model_path = "nandansarkar/qwen3_0-6B_filter_13_epochs"
-    alpha = 0.2
+import argparse
 
-    
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--model_path", type=str)
+    parser.add_argument("--data_path", type=str, default="../data/braingle_Math_annotated.csv")
+
+    args = parser.parse_args()
+
+    data_path = args.data_path 
+    model_path = args.model_path 
+
+    alpha = 0.2
     prompts = read_prompts_from_folder("out_prompts")
     print("N:", len(prompts))
 
-
     N_elite = int(alpha * len(prompts))
-
-
 
     batch_scores = compute_fitness_batch(data_path, prompts, model_name = model_path)
 
     sorted_prompts = [
     p for p, s in sorted(zip(prompts, batch_scores), key=lambda x: x[1], reverse=True)
     ]
-    
+
+    sorted_scores = sorted(batch_scores, reverse=True)
+
+    print(batch_scores)
     print(sorted_prompts[:N_elite])
 
+    
+
+    csv_path = "test_results.csv"
+
+    # Create a dataframe with new rows
+    new_rows = pd.DataFrame({
+        "prompt": sorted_prompts,
+        "score": sorted_scores,
+        "model_path": model_path,
+        "data_path": data_path
+    })
+
+    # If file exists, append without writing header
+    if os.path.exists(csv_path):
+        new_rows.to_csv(csv_path, mode="a", header=False, index=False)
+    else:
+        # If file doesn't exist yet, write with header
+        new_rows.to_csv(csv_path, mode="w", header=True, index=False)
 
     # avg_scores = []
     # for adversarial_prompt in tqdm(ADVERSARIAL_PROMPTS, desc="Adversarial prompts"):
