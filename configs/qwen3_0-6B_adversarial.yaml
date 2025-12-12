@@ -1,5 +1,5 @@
 ### model
-model_name_or_path: Qwen/Qwen3-0.6B
+model_name_or_path: /home/nsarkar/orcd/pool/GPTeacher/model_checkpoints/qwen3_0-6B_adversarial_7
 do_train: true
 do_eval: false
 
@@ -13,14 +13,14 @@ gradient_checkpointing: true
 deepspeed: ./examples/deepspeed/ds_z3_config.json
 
 ### dataset
-dataset: sft_dataset
+dataset: adversarial_dataset_8
 template: qwen
 cutoff_len: 32768
 overwrite_cache: true
 preprocessing_num_workers: 16
 
 ### output
-output_dir: ../model_checkpoints/qwen3_0-6B_filter_13_epochs
+output_dir: ../model_checkpoints/qwen3_0-6B_adversarial_8
 logging_steps: 1
 save_strategy: steps
 save_steps: 200
@@ -33,7 +33,7 @@ per_device_train_batch_size: 2
 gradient_accumulation_steps: 8
 learning_rate: 1.0e-5
 lr_scheduler_type: cosine
-num_train_epochs: 13
+num_train_epochs: 1
 warmup_ratio: 0.05
 weight_decay: 0
 adam_beta1: 0.9

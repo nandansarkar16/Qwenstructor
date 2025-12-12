@@ -1,5 +1,32 @@
 {
   "sft_dataset": {
-    "file_name": "sft_dataset.json"
+    "file_name": "dataset.json"
+  },
+  "adversarial_dataset": {
+    "file_name": "adversarial_dataset.json"
+  },
+  "val_dataset": {
+    "file_name": "val_dataset.json"
+  },
+  "adversarial_dataset_2": {
+    "file_name": "adversarial_dataset_2.json"
+  },
+  "adversarial_dataset_3": {
+    "file_name": "adversarial_dataset_3.json"
+  },
+  "adversarial_dataset_4": {
+    "file_name": "adversarial_dataset_4.json"
+  },
+  "adversarial_dataset_5": {
+    "file_name": "adversarial_dataset_5.json"
+  },
+  "adversarial_dataset_6": {
+    "file_name": "adversarial_dataset_6.json"
+  },
+  "adversarial_dataset_7": {
+    "file_name": "adversarial_dataset_7.json"
+  },
+  "adversarial_dataset_8": {
+    "file_name": "adversarial_dataset_8.json"
   }
 }

@@ -1,6 +1,6 @@
 sbatch <<EOT
 #!/bin/bash
-#SBATCH --partition=       # Partition name
+#SBATCH --partition=mit_normal_gpu       # Partition name
 #SBATCH --gres=gpu:h200:2              # Number of GPUs
 #SBATCH --cpus-per-task=16
 #SBATCH --mem=300G
@@ -12,6 +12,6 @@ export CUDA_HOME=$(dirname $(dirname $(which nvcc)))
 export WANDB_PROJECT=GPTeacher
 
 cd ../LLaMA-Factory
-echo "Training Qwen3.0-6B Filter..."
-llamafactory-cli train ../configs/qwen3_0-6B_filter.yaml
+echo "Training Qwen3.0-6B Adversarial..."
+llamafactory-cli train ../configs/qwen3_0-6B_adversarial.yaml
 EOT
