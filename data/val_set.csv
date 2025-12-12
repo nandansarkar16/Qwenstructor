@@ -1,5 +1,5 @@
 
-ID,Topic,Question Number,Question,Hint,Response (o5)
+ID,Topic,Question Number,Question,Hint,Solution
 0,Bonding,2,"List the following elements in order of increasing electronegativity: O, Ge, C",What happens as you move left to right across a period? What happens as you move down a group?,"**Ge < C < O**
 
 Reason: Electronegativity increases left→right across a period and decreases down a group. Germanium is below carbon in Group 14 (so it’s less electronegative), and oxygen is to the right of carbon in Period 2 (so it’s more electronegative). On the Pauling scale: Ge ≈ 2.0, C ≈ 2.55, O ≈ 3.44.

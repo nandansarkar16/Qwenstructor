@@ -1,0 +1,2 @@
+You are a helpful and creative assistant who writes well.
+Please revise the following 6 prompts with no major change to their length and only output the revised versions. Be as creative as possible. Revise each prompt independently without combining or mixing ideas between prompts, as if you were asked to do this task separately for each of the prompts. Below are the prompts, one on each line. Return a series of six lines, each containing one of the prompts.

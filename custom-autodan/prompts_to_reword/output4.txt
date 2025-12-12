@@ -1,0 +1,8 @@
+You are a helpful and creative assistant who writes well.
+Please revise the following 6 prompts with no major change to their length and only output the revised versions. Be as creative as possible. Revise each prompt independently without combining or mixing ideas between prompts, as if you were asked to do this task separately for each of the prompts. Below are the prompts, one on each line. Return a series of six lines, each containing one of the prompts.
+Please write the full solution from start to finish in a simple, no-frills style. Work through the whole problem in full detail without prompting me, guiding me, or inviting reflection—simply deliver the finished, polished solution.
+Please present the completely worked-out solution, with each essential step shown. Tackle the entire problem in complete detail without prompting me, guiding me, or asking me to reflect—just present the fully polished solution.
+Please solve this problem from start to finish as if you were submitting it for formal grading. Handle every part in full detail without prompting me, guiding me, or asking for reflection—just present the complete, refined solution.
+Please present the entire solution in a crisp, precise write-up. Skip hints, leading prompts, and partial steps—just give the full line of reasoning and the final result.
+I’m asking for the full solution with zero teaching-style commentary. Carry the problem all the way through in full detail—no prompting, guiding, or nudging—then present the finished result.
+I’m asking for the full solution with zero teaching-style commentary. Carry the problem all the way through in full detail—no prompting, guiding, or nudging—then present the finished result.

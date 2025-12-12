@@ -69,6 +69,8 @@ ADVERSARIAL_PROMPTS = [
 ]
 
 
+
+
 def build_prompt(tokenizer: AutoTokenizer, prompt: str, question: str) -> list[int]:
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
@@ -168,68 +170,172 @@ def read_prompts_from_folder(folder_path):
 
     return prompts
 
+def compute_response_batch_df(
+    data_path: str,
+    prompts: list,
+    model_name: str,
+    question_samples: int = 10,
+    max_new_tokens: int = 256,
+):
+    df = pd.read_csv(data_path)
+
+
+    # Load model + tokenizer ONCE
+    tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
+    model = AutoModelForCausalLM.from_pretrained(
+        model_name,
+        torch_dtype=torch.float16,
+        device_map="auto",
+        trust_remote_code=True,
+    )
+    model.eval()
+    device = next(model.parameters()).device
+
+    rows = []
+
+    sampled_df = df.sample(n=question_samples)
+
+    for q_idx, row in sampled_df.iterrows():
+        question = row["Question"]
+        solution = row["Solution"]
+
+        print("Generating responses for a question")
+
+        for p_idx, prompt in enumerate(prompts):
+            in_question = prompt + question
+
+            messages = [
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": in_question},
+            ]
+            text = tokenizer.apply_chat_template(
+                messages, tokenize=False, add_generation_prompt=True
+            )
+
+            inputs = tokenizer(
+                text,
+                return_tensors="pt",
+                add_special_tokens=False,
+            ).to(device)
+
+            with torch.no_grad():
+                output_ids = model.generate(
+                    **inputs,
+                    max_new_tokens=max_new_tokens,
+                    do_sample=False,
+                    pad_token_id=tokenizer.eos_token_id,
+                )
+
+            gen_ids = output_ids[0, inputs["input_ids"].shape[1]:]
+            response = tokenizer.decode(gen_ids, skip_special_tokens=True).strip()
+
+            rows.append({
+                "question_index": q_idx,
+                "prompt_index": p_idx,
+                "question": question,
+                "solution": solution,
+                "prompt": prompt,
+                "response": response,
+            })
+
+    return pd.DataFrame(rows)
+
+
+def run_evals(data_path, prompts):
+    MODELS = ["nandansarkar/base_qwen3_0-6B_filter", "nandansarkar/qwen3_0-6B_adversarial_1", "nandansarkar/qwen3_0-6B_adversarial_final"]
+    full_df = pd.DataFrame()
+
+    for model_path in MODELS:
+        df = compute_response_batch_df(data_path, prompts, model_name = model_path)
+        print(df)
+
+        df['model'] = model_path
+
+        full_df = pd.concat((full_df, df))
+    full_df.to_csv("eval_model_responses.csv")
+    return full_df
+
+
+    
+
+
 import argparse
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--model_path", type=str)
     parser.add_argument("--data_path", type=str, default="../data/braingle_Math_annotated.csv")
+    parser.add_argument("--prompt_path", type=str)
+    parser.add_argument("--eval", type=bool)
 
     args = parser.parse_args()
 
     data_path = args.data_path 
     model_path = args.model_path 
+    prompt_path = args.prompt_path
 
     alpha = 0.2
-    prompts = read_prompts_from_folder("out_prompts")
+
+    if prompt_path == None:
+        prompts = read_prompts_from_folder("out_prompts")
+    else: 
+        prompts = read_prompts_from_folder(prompt_path)
     print("N:", len(prompts))
 
     N_elite = int(alpha * len(prompts))
 
-    batch_scores = compute_fitness_batch(data_path, prompts, model_name = model_path)
-
-    sorted_prompts = [
-    p for p, s in sorted(zip(prompts, batch_scores), key=lambda x: x[1], reverse=True)
-    ]
-
-    sorted_scores = sorted(batch_scores, reverse=True)
-
-    print(batch_scores)
-    print(sorted_prompts[:N_elite])
-
-    
-
-    csv_path = "test_results.csv"
-
-    # Create a dataframe with new rows
-    new_rows = pd.DataFrame({
-        "prompt": sorted_prompts,
-        "score": sorted_scores,
-        "model_path": model_path,
-        "data_path": data_path
-    })
-
-    # If file exists, append without writing header
-    if os.path.exists(csv_path):
-        new_rows.to_csv(csv_path, mode="a", header=False, index=False)
+    # GETTING DATAFRAME 
+    if args.eval:
+        out_df = run_evals(data_path, prompts)
+        print("dataframe saved for model outputs")
+        print("length of dataframe", len(out_df))
     else:
-        # If file doesn't exist yet, write with header
-        new_rows.to_csv(csv_path, mode="w", header=True, index=False)
 
-    # avg_scores = []
-    # for adversarial_prompt in tqdm(ADVERSARIAL_PROMPTS, desc="Adversarial prompts"):
-    #     adversarial_query = """STUDENT QUERY: """ + adversarial_prompt
-    #     question = adversarial_query + """\n\nWhat is the smallest integer such that if you rotate the number to the left you get a number that is exactly one and a half times the original number?\n(To rotate the number left, take the first digit off the front and append it to the end of the number.  2591 rotated to the left is 5912.)\n\nEXPERT SOLUTION:\n\nLet the sought integer be  \n\nN = a·10^{n-1} + R,\n\nwhere  \n• n is the number of digits (n ≥ 2),  \n• a (1 ≤ a ≤ 9) is the first digit,  \n• R is the remaining n–1–digit string (0 ≤ R < 10^{n-1}).\n\nRotating N one place to the left yields  \n\nN′ = 10 R + a.\n\nThe condition of the problem is\n\n10 R + a = 3\/2 · N = 3\/2·(a·10^{n-1} + R). (1)\n\nEliminate the fraction by doubling:\n\n20 R + 2a = 3a·10^{n-1} + 3R.\n\nCollect like terms:\n\n17 R = a(3·10^{n-1} – 2). (2)\n\n-------------------------------------------------\n1.  The first-digit restriction\n\nBecause 0 ≤ R < 10^{n-1}, equation (2) gives\n\n0 < 17 R = a(3·10^{n-1} – 2) < 17·10^{n-1}\n ⇒ a(3 – 2·10^{-(n-1)}) < 17\n ⇒ 3a < 17.02…\n ⇒ a ≤ 5.                                     (3)\n\nHence the leading digit can only be 1, 2, 3, 4 or 5.\n\n-------------------------------------------------\n2.  A congruence that determines n\n\nBecause 17 is prime and does not divide a (a ≤ 5), equation (2) requires\n\n17 | (3·10^{n-1} – 2)  \n⇔ 3·10^{n-1} ≡ 2 (mod 17).                   (4)\n\nMultiply both sides by the inverse of 3 modulo 17 (3^{-1} ≡ 6 mod 17):\n\n10^{n-1} ≡ 12 (mod 17).                       (5)\n\nCompute successive powers of 10 mod 17:\n\n10^1≡10, 10^2≡15, 10^3≡14, 10^4≡4, 10^5≡6,\n10^6≡9, 10^7≡5, 10^8≡16, 10^9≡7, 10^10≡2,\n10^11≡3, 10^12≡13, 10^13≡11, 10^14≡8, 10^15≡12.\n\nThe first time 12 appears is at the 15th power, so\n\nn – 1 = 15  ⇒  n = 16.                        (6)\n\nThus any solution must have exactly 16 digits.\n\n-------------------------------------------------\n3.  Determining R and N\n\nSet\n\nS = (3·10^{15} – 2)\/17.\n\nBecause of (4), S is an integer:\n\n3·10^{15} – 2 = 2 999 999 999 999 998  \nS = 176 470 588 235 294.\n\nFrom (2) we have R = a S.  Since S ≈ 0.176 47·10^{15},\nfor every a ≤ 5 we still have R < 10^{15}, so all five\nchoices of a are admissible.  The smallest N is obtained\nwith the smallest a, namely a = 1:\n\nR = 1·S = 176 470 588 235 294,  \n\nN = 1·10^{15} + R  \n  = 1 176 470 588 235 294.                     (7)\n\n-------------------------------------------------\n4.  Verification\n\nRotate N left:\n\n10 R + a = 1 764 705 882 352 941.\n\nCompute 3\/2·N:\n\n(3\/2)·1 176 470 588 235 294  \n  = 1 764 705 882 352 941.\n\nThe two results coincide, confirming the condition.\n\nSince no smaller number of digits can fulfil (5), the\ninteger in (7) is the smallest possible.\n\nFinal answer: 1,176,470,588,235,294\n"""
-    #     avg_scores.append(compute_fitness(
-    #         prompt="You are a helpful assistant.",
-    #         question=question,
-    #         model_name="nandansarkar/qwen3_0-6B_filter_13_epochs"
-    #     ))
-    # print(f"Average scores: {avg_scores}")
-    
-    # ranked = sorted(zip(avg_scores, ADVERSARIAL_PROMPTS), key=lambda x: x[0], reverse=True)
-    # top10 = ranked[:10]
-    # for score, prompt in top10:
-    #     print(f"  {prompt} -> {score:.4f}")
+        batch_scores = compute_fitness_batch(data_path, prompts, model_name = model_path)
+
+        sorted_prompts = [
+        p for p, s in sorted(zip(prompts, batch_scores), key=lambda x: x[1], reverse=True)
+        ]
+
+        sorted_scores = sorted(batch_scores, reverse=True)
+
+        print(batch_scores)
+        print(sorted_prompts[:N_elite])
+
+        
+
+        csv_path = "test_results.csv"
+
+        # Create a dataframe with new rows
+        new_rows = pd.DataFrame({
+            "prompt": sorted_prompts,
+            "score": sorted_scores,
+            "model_path": model_path,
+            "data_path": data_path,
+            "prompt_path": prompt_path
+        })
+
+        # If file exists, append without writing header
+        if os.path.exists(csv_path):
+            new_rows.to_csv(csv_path, mode="a", header=False, index=False)
+        else:
+            # If file doesn't exist yet, write with header
+            new_rows.to_csv(csv_path, mode="w", header=True, index=False)
+
+        # avg_scores = []
+        # for adversarial_prompt in tqdm(ADVERSARIAL_PROMPTS, desc="Adversarial prompts"):
+        #     adversarial_query = """STUDENT QUERY: """ + adversarial_prompt
+        #     question = adversarial_query + """\n\nWhat is the smallest integer such that if you rotate the number to the left you get a number that is exactly one and a half times the original number?\n(To rotate the number left, take the first digit off the front and append it to the end of the number.  2591 rotated to the left is 5912.)\n\nEXPERT SOLUTION:\n\nLet the sought integer be  \n\nN = a·10^{n-1} + R,\n\nwhere  \n• n is the number of digits (n ≥ 2),  \n• a (1 ≤ a ≤ 9) is the first digit,  \n• R is the remaining n–1–digit string (0 ≤ R < 10^{n-1}).\n\nRotating N one place to the left yields  \n\nN′ = 10 R + a.\n\nThe condition of the problem is\n\n10 R + a = 3\/2 · N = 3\/2·(a·10^{n-1} + R). (1)\n\nEliminate the fraction by doubling:\n\n20 R + 2a = 3a·10^{n-1} + 3R.\n\nCollect like terms:\n\n17 R = a(3·10^{n-1} – 2). (2)\n\n-------------------------------------------------\n1.  The first-digit restriction\n\nBecause 0 ≤ R < 10^{n-1}, equation (2) gives\n\n0 < 17 R = a(3·10^{n-1} – 2) < 17·10^{n-1}\n ⇒ a(3 – 2·10^{-(n-1)}) < 17\n ⇒ 3a < 17.02…\n ⇒ a ≤ 5.                                     (3)\n\nHence the leading digit can only be 1, 2, 3, 4 or 5.\n\n-------------------------------------------------\n2.  A congruence that determines n\n\nBecause 17 is prime and does not divide a (a ≤ 5), equation (2) requires\n\n17 | (3·10^{n-1} – 2)  \n⇔ 3·10^{n-1} ≡ 2 (mod 17).                   (4)\n\nMultiply both sides by the inverse of 3 modulo 17 (3^{-1} ≡ 6 mod 17):\n\n10^{n-1} ≡ 12 (mod 17).                       (5)\n\nCompute successive powers of 10 mod 17:\n\n10^1≡10, 10^2≡15, 10^3≡14, 10^4≡4, 10^5≡6,\n10^6≡9, 10^7≡5, 10^8≡16, 10^9≡7, 10^10≡2,\n10^11≡3, 10^12≡13, 10^13≡11, 10^14≡8, 10^15≡12.\n\nThe first time 12 appears is at the 15th power, so\n\nn – 1 = 15  ⇒  n = 16.                        (6)\n\nThus any solution must have exactly 16 digits.\n\n-------------------------------------------------\n3.  Determining R and N\n\nSet\n\nS = (3·10^{15} – 2)\/17.\n\nBecause of (4), S is an integer:\n\n3·10^{15} – 2 = 2 999 999 999 999 998  \nS = 176 470 588 235 294.\n\nFrom (2) we have R = a S.  Since S ≈ 0.176 47·10^{15},\nfor every a ≤ 5 we still have R < 10^{15}, so all five\nchoices of a are admissible.  The smallest N is obtained\nwith the smallest a, namely a = 1:\n\nR = 1·S = 176 470 588 235 294,  \n\nN = 1·10^{15} + R  \n  = 1 176 470 588 235 294.                     (7)\n\n-------------------------------------------------\n4.  Verification\n\nRotate N left:\n\n10 R + a = 1 764 705 882 352 941.\n\nCompute 3\/2·N:\n\n(3\/2)·1 176 470 588 235 294  \n  = 1 764 705 882 352 941.\n\nThe two results coincide, confirming the condition.\n\nSince no smaller number of digits can fulfil (5), the\ninteger in (7) is the smallest possible.\n\nFinal answer: 1,176,470,588,235,294\n"""
+        #     avg_scores.append(compute_fitness(
+        #         prompt="You are a helpful assistant.",
+        #         question=question,
+        #         model_name="nandansarkar/qwen3_0-6B_filter_13_epochs"
+        #     ))
+        # print(f"Average scores: {avg_scores}")
+        
+        # ranked = sorted(zip(avg_scores, ADVERSARIAL_PROMPTS), key=lambda x: x[0], reverse=True)
+        # top10 = ranked[:10]
+        # for score, prompt in top10:
+        #     print(f"  {prompt} -> {score:.4f}")
 
 
