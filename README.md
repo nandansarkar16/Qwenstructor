@@ -26,3 +26,9 @@ OTHERWISE ("out_prompts" folder should be populated):
 2. GPT revisions          
 This should update the folder called "prompts_to_reword" with several text files. Copy paste the contents of text file into GPT, and paste them into the corresponding numbered text file in "out_prompts". These are the new set of prompts for the next forward pass. 
 
+
+# Running SFT 
+TODO 
+
+# Running the CLI for student learning
+TODO 
