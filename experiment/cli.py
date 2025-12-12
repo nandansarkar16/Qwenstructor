@@ -183,7 +183,7 @@ class TeacherModel:
     
     def _load_custom_model(self):
         """Load the custom model using LLaMA-Factory."""
-        model_path = "nandansarkar/qwen3_0-6B_adversarial_6"
+        model_path = "nandansarkar/qwen3_0-6B_adversarial_final"
         # print(f"Loading custom model from {model_path}...")
         
         args = {
