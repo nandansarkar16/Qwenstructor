@@ -14,7 +14,8 @@ Paths to the original SFT-trained filter, 1-epoch adversarially trained, and ful
 
 Run all commands inside the custom-autodan folder.
 
-1. Genetic forward pass 
+1. Genetic forward pass
+
 IF FIRST ITERATION:       
 ```python  autodan_GA_iter.py --data_path ../data/braingle_Math_annotated.csv --model_path [MODEL PATH] --first```        
 This uses the set of initial seed prompts which can be found inside the code itself. 
