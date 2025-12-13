@@ -1,8 +1,8 @@
-# Project repository for CPSC 4710 final project. 
+# Project repository for CPSC 4710 final project.     
 Group members: Howard Dai, Akhil Elangovan, Nandan Sarkar, Ben Xu
 
 # Environment setup
-TODO: requirements file here
+Run ```pip install requirements.txt```    
 
 # Reproducing results 
 This returns a table of all model responses across the three versions tested in our paper.             
@@ -10,7 +10,11 @@ This returns a table of all model responses across the three versions tested in 
 ```python  fitness_calculator.py --data_path /vast/palmer/pi/krishnaswamy_smita/hcd22/GPTeacher/data/val_set.csv --prompt_path fixed_eval_adversarial --eval```
 
 # Running an iteration of AutoDAN 
-Paths to the original SFT-trained filter, 1-epoch adversarially trained, and fully adversarially trained, are nandansarkar/base_qwen3_0-6B_filter, nandansarkar/qwen3_0-6B_adversarial_1, nandansarkar/qwen3_0-6B_adversarial_final, respectively. 
+The model checkpoints (stored on Hugging Face) are:
+
+- **Original SFT-trained filter:** `nandansarkar/base_qwen3_0-6B_filter`
+- **1-epoch adversarially trained model:** `nandansarkar/qwen3_0-6B_adversarial_1`
+- **Fully adversarially trained model:** `nandansarkar/qwen3_0-6B_adversarial_final`
 
 Run all commands inside the custom-autodan folder.
 
@@ -26,3 +30,20 @@ OTHERWISE ("out_prompts" folder should be populated):
 2. GPT revisions          
 This should update the folder called "prompts_to_reword" with several text files. Copy paste the contents of text file into GPT, and paste them into the corresponding numbered text file in "out_prompts". These are the new set of prompts for the next forward pass. 
 
+
+# Running SFT 
+
+First, follow the instructions on https://github.com/hiyouga/LLaMA-Factory to create the necessary environment for training.
+
+To run supervised fine-tuning (SFT) on the Braingle dataset, first ensure that the dataset is placed in `LLaMA-Factory/data` and that there is a corresponding entry in `LLaMA-Factory/data/dataset_info.json`.
+
+All hyperparameter configurations are stored in the `configs` directory. 
+
+To launch training, update `scripts/train.sh` to point to the desired hyperparameter configuration file, then run:
+
+```bash train.sh```
+
+The training script is compatible with Slurm and other GPU schedulers i.e. ```srun --partition={partition_name} --gres=gpu:{number_of_gpus} bash train.sh```
+
+# Running the CLI for student learning
+We have also developed an interactive CLI where the user can use our model to ask for hints on competition-style math problems. This is what we give to our participants for the human learning experiment. See the ReadME in the "experimental" to use it. 
