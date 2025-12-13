@@ -10,7 +10,7 @@ This returns a table of all model responses across the three versions tested in 
 ```python  fitness_calculator.py --data_path /vast/palmer/pi/krishnaswamy_smita/hcd22/GPTeacher/data/val_set.csv --prompt_path fixed_eval_adversarial --eval```
 
 # Running an iteration of AutoDAN 
-The model checkpoints are:
+The model checkpoints (stored on Hugging Face) are:
 
 - **Original SFT-trained filter:** `nandansarkar/base_qwen3_0-6B_filter`
 - **1-epoch adversarially trained model:** `nandansarkar/qwen3_0-6B_adversarial_1`
@@ -32,6 +32,8 @@ This should update the folder called "prompts_to_reword" with several text files
 
 
 # Running SFT 
+
+First, follow the instructions on https://github.com/hiyouga/LLaMA-Factory to create the necessary environment for training.
 
 To run supervised fine-tuning (SFT) on the Braingle dataset, first ensure that the dataset is placed in `LLaMA-Factory/data` and that there is a corresponding entry in `LLaMA-Factory/data/dataset_info.json`.
 
