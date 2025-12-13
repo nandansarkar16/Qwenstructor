@@ -135,11 +135,14 @@ def compute_fitness_batch(data_path: str, prompts: list, model_name: str, questi
 
     
     total_avg_scores = []
-    for question in df['Question'].sample(n=question_samples):
+    sampled_df = df.sample(n=question_samples)
+    for q_idx, row in sampled_df.iterrows():
+        question = row["Question"]
+        solution = row["Answer"]
         print("Computing fitness for a question")
         avg_scores = []
         for prompt in prompts:
-            in_question = prompt + question
+            in_question = format_question(prompt, question, solution)
             avg_score = compute_fitness("", in_question, model_name)
             avg_scores.append(avg_score)
         total_avg_scores.append(avg_scores)
@@ -197,13 +200,15 @@ def compute_response_batch_df(
 
     for q_idx, row in sampled_df.iterrows():
         question = row["Question"]
-        solution = row["Solution"]
+        solution = row["Answer"]
 
         print("Generating responses for a question")
 
         for p_idx, prompt in enumerate(prompts):
-            in_question = prompt + question
-
+            in_question = format_question(prompt, question, solution)
+            if p_idx == 0:
+                print("Example")
+                print(in_question)
             messages = [
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": in_question},
@@ -242,7 +247,7 @@ def compute_response_batch_df(
 
 
 def run_evals(data_path, prompts):
-    MODELS = ["nandansarkar/base_qwen3_0-6B_filter", "nandansarkar/qwen3_0-6B_adversarial_1", "nandansarkar/qwen3_0-6B_adversarial_final"]
+    MODELS = ["Qwen/Qwen3-0.6B", "nandansarkar/base_qwen3_0-6B_filter", "nandansarkar/qwen3_0-6B_adversarial_1", "nandansarkar/qwen3_0-6B_adversarial_final"]
     full_df = pd.DataFrame()
 
     for model_path in MODELS:
@@ -256,7 +261,14 @@ def run_evals(data_path, prompts):
     return full_df
 
 
-    
+def format_question(prompt, question, solution):
+    return (
+        "STUDENT QUERY:\n"
+        f"{prompt}\n\n"
+        f"{question}\n\n"
+        "EXPERT SOLUTION:\n\n"
+        f"{solution}"
+    )
 
 
 import argparse
@@ -266,7 +278,7 @@ if __name__ == "__main__":
     parser.add_argument("--model_path", type=str)
     parser.add_argument("--data_path", type=str, default="../data/braingle_Math_annotated.csv")
     parser.add_argument("--prompt_path", type=str)
-    parser.add_argument("--eval", type=bool)
+    parser.add_argument("--eval", action="store_true")
 
     args = parser.parse_args()
 
