@@ -32,7 +32,16 @@ This should update the folder called "prompts_to_reword" with several text files
 
 
 # Running SFT 
-TODO 
+
+To run supervised fine-tuning (SFT) on the Braingle dataset, first ensure that the dataset is placed in `LLaMA-Factory/data` and that there is a corresponding entry in `LLaMA-Factory/data/dataset_info.json`.
+
+All hyperparameter configurations are stored in the `configs` directory. 
+
+To launch training, update `scripts/train.sh` to point to the desired hyperparameter configuration file, then run:
+
+```bash train.sh```
+
+The training script is compatible with Slurm and other GPU schedulers i.e. ```srun --partition={partition_name} --gres=gpu:{number_of_gpus} bash train.sh```
 
 # Running the CLI for student learning
 TODO 
