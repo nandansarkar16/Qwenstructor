@@ -46,4 +46,4 @@ To launch training, update `scripts/train.sh` to point to the desired hyperparam
 The training script is compatible with Slurm and other GPU schedulers i.e. ```srun --partition={partition_name} --gres=gpu:{number_of_gpus} bash train.sh```
 
 # Running the CLI for student learning
-We have also developed an interactive CLI where the user can use our model to ask for hints on competition-style math problems. See the ReadME in the "experimental" to use it. 
+We have also developed an interactive CLI where the user can use our model to ask for hints on competition-style math problems. This is what we give to our participants for the human learning experiment. See the ReadME in the "experimental" to use it. 
