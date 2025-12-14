@@ -7,7 +7,7 @@ Run ```pip install requirements.txt```
 # Reproducing results 
 This returns a table of all model responses across the three versions tested in our paper.             
 
-```python  fitness_calculator.py --data_path /vast/palmer/pi/krishnaswamy_smita/hcd22/GPTeacher/data/val_set.csv --prompt_path fixed_eval_adversarial --eval```
+```python  fitness_calculator.py --data_path /vast/palmer/pi/krishnaswamy_smita/hcd22/GPTeacher/data/simple_val_set.csv --prompt_path fixed_eval_adversarial --eval```
 
 # Running an iteration of AutoDAN 
 The model checkpoints (stored on Hugging Face) are:
